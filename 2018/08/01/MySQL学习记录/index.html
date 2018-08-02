@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>MySQL学习记录 | 尚武</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">MySQL学习记录</h1><a id="logo" href="/.">尚武</a><p class="description">炳文博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 主页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/tasks/"><i class="fa fa-tasks"> 任务</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">MySQL学习记录</h1><div class="post-meta">Aug 1, 2018</div><div class="post-content"><h1 id="MySQL学习记录"><a href="#MySQL学习记录" class="headerlink" title="MySQL学习记录"></a>MySQL学习记录</h1><h2 id="Communication-Protocols"><a href="#Communication-Protocols" class="headerlink" title="Communication Protocols"></a>Communication Protocols</h2><table>
+<thead>
+<tr>
+<th>Protocol</th>
+<th style="text-align:center">Type of Connections</th>
+<th>Support OS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TCP/IP</td>
+<td style="text-align:center">Local,remote</td>
+<td>ALL</td>
+</tr>
+<tr>
+<td>Unix socket file</td>
+<td style="text-align:center">Local</td>
+<td>Unix only</td>
+</tr>
+<tr>
+<td>Named pipe</td>
+<td style="text-align:center">Local</td>
+<td>Windows only</td>
+</tr>
+<tr>
+<td>Shared memory</td>
+<td style="text-align:center">Local</td>
+<td>Windows only</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>TCP/IP connections are supported by any MySQL server unless the seriver is started with the –skip-networking option</li>
+<li>Unix socket file are supported by all Unix servers</li>
+<li>Named-pipe connections are supported only on windows and only if you use one of the servers that has -nt in its name.However, named piped are disable by default. To enable named-pipe connections,you must start the -nt server with the –enable-named-pipe option</li>
+<li>Shared-memory connections are supported by all Windows servers, but are disabled by default. To enable shared-memory connections, you must start the server with the –shared-memory option.</li>
+</ul>
+<p>The different connection methods are not all equally efficient:</p>
+<ul>
+<li>In many Windows configurations, communication via named pipes is much slower than using TCP/IP. You should use named pipes only when you choose to disable TCP/IP (using the –skip-networking startup parameter) or when you can confirm that named pipes actually are faster for your particular setup.</li>
+<li>On Unix, a Unix socket file connection provides better performance than a TCP/IP connection.</li>
+<li>On any platform, an ODBC connection made via MySQL Connector/ODBC is slower than a connection established directly using the native C client library. This is because ODBC is layered on top of the C library, which adds overhead</li>
+<li>On any platform, a JDBC connection made via MySQL Connector/J is likely to be roughly about the same speed as a connection established using the native C client library.</li>
+</ul>
+<h2 id="The-SQL-Parser-and-Storage-Engine-Tiers"><a href="#The-SQL-Parser-and-Storage-Engine-Tiers" class="headerlink" title="The SQL Parser and Storage Engine Tiers"></a>The SQL Parser and Storage Engine Tiers</h2><p>The server executes each statement using a two-tier processing model:</p>
+<ul>
+<li>The upper tier includes the SQL parser and optimizer. The server parses each statement to see what kind of request it is, then uses its optimizer to determine how most efficiently to execute the statement. However, this tier does not interact directly with tables named by the statement.</li>
+<li>The lower tier comprises a set of storage engines. The server uses a modular architecture: Each storage engine is a software module to be used for managing tables of a particular type. The storage engine associated with a table directly accesses it to store or retrieve data. MyISAM, MEMORY, and InnoDB are some of the available engines. The use of this modular approach allows storage engines to be easily selected for inclusion in the server at configuration time. New engines also can be added relatively easily.</li>
+</ul>
+<h2 id="How-MySQL-Uses-Disk-Space"><a href="#How-MySQL-Uses-Disk-Space" class="headerlink" title="How MySQL Uses Disk Space"></a>How MySQL Uses Disk Space</h2><p>The MySQL server’s data directory to store all the following:</p>
+<ul>
+<li>Database directories. Each database corresponds to single directory under the data directory, regardless of what types of tables you create in the database.</li>
+<li>Table format file (.frm files) that contain a description of table structure. Every table have its ower .frm file,<br>located in the appropriate database directory. This is true no matter which storage engine mananges the table.</li>
+<li>Data and index files are created of each table by some storege engines and placed in the appropriate database directory.</li>
+<li>The InnoDB storage engine has its own tablespace and log files.The tablespace contains data and index information for all InnoDB tables, as well as the undo logs that are needed if a transaction must be rolled back. The log files record information about committed transactions and are used to ensure that no data loss occurs. By default, the tablespace and log files are located in the data directory. The default tablespace file is named ibdata1 and the default log files are named ib_logfile0 and ib_logfile1. (It is also possible to configure InnoDB to use one tablespace file per table. In this case, InnoDB creates the tablespace file for a given table in the table’s database directory.)</li>
+<li>Server log files and status files. These files contain information about the statements that the server has been processing. Logs are used for replication and data recovery, to obtain information for use in optimizing query performance, and to determine whether operational problems are occurring</li>
+</ul>
+<h2 id="How-MySQL-Uses-Memory"><a href="#How-MySQL-Uses-Memory" class="headerlink" title="How MySQL Uses Memory"></a>How MySQL Uses Memory</h2><ul>
+<li>Thread handlers. The server is multi-threaded, and a thread is like a small process running inside the server. For each client that connects, the server allocates a thread to it to handle the connection. For performance reasons, the server maintains a small cache of thread handlers. If the cache is not full when a client disconnects, the thread is placed in the cache for later reuse. If the cache is not empty when a client connects, a thread from the cache is reused to handle the connection. Thread handler reuse avoids the overhead of repeated handler setup and teardown.</li>
+<li>The server uses several buffers (caches) to hold information in memory for the purpose of avoiding disk access when possible:<ul>
+<li>Grant table buffers. The grant tables store information about MySQL user accounts and the privileges they have. The server loads a copy of the grant tables into memory for fast access-control checking. Client access is checked for every query, so looking up privilege information in memory rather than from the grant tables on disk results in a significant reduction of disk access overhead.</li>
+<li>A key buffer holds index blocks for MyISAM tables. By caching index blocks in memory, the server often can avoid reading index contents repeatedly from disk for index-based retrievals and other index-related operations such as sorts</li>
+<li>The table cache holds descriptors for open tables. For frequently used tables, keeping the descriptors in the cache avoids having to open the tables again and again</li>
+<li>The server supports a query cache that speeds up processing of queries that are issued repeatedly</li>
+<li>The host cache holds the results of hostname resolution lookups. These results are cached to minimize the number of calls to the hostname resolver</li>
+<li>The InnoDB storage engine logs information about current transactions in a memory buffer. When a transaction commits, the log buffer is flushed to the InnoDB log files, providing a record on disk that can be used to recommit the transaction if it is lost due to a crash. If the transaction rolls back instead, the flush to disk need not be done at all</li>
+</ul>
+</li>
+<li>The MEMORY storage engine creates tables that are held in memory. These tables are very fast because no transfer between disk and memory need be done to access their contents</li>
+<li>The server might create internal temporary tables in memory during the course of query processing. If the size of such a table exceeds the value of the tmp_table_size system variable, the server converts it to a MyISAM-format table on disk and increments its Created_tmp_disk_tables status variable</li>
+<li>The server maintains several buffers for each client connection. One is used as a communications buffer for exchanging information with the client. Other buffers are maintained per client for reading tables and for performing join and sort operations.</li>
+</ul>
+<h2 id="Windows-MySQL-distributions-include-several-servers"><a href="#Windows-MySQL-distributions-include-several-servers" class="headerlink" title="Windows MySQL distributions include several servers"></a>Windows MySQL distributions include several servers</h2><ul>
+<li>mysqld is the standard server. It includes both the MyISAM and InnoDB storage engines</li>
+<li>mysqld-nt is like mysqld, but includes support for named pipes on NT-based systems such as Windows NT, 2000, XP, and 2003.</li>
+<li>mysqld-max and mysql-max-nt are like mysqld and mysql-nt, but with extra features such as support for additional storage engines that are not included in the non-max servers.</li>
+<li>mysqld-debug contains support for debugging. Normally, you don’t choose this server for production use because it has a larger runtime image and uses more memory.</li>
+</ul>
+<h2 id="Choosing-a-Server-Startup-Shutdown-Method-on-Unix"><a href="#Choosing-a-Server-Startup-Shutdown-Method-on-Unix" class="headerlink" title="Choosing a Server Startup/Shutdown Method on Unix"></a>Choosing a Server Startup/Shutdown Method on Unix</h2><ul>
+<li>You can invoke mysqld manually. This is usually not done except for debugging purposes. If you invoke the server this way, error messages go to the terminal by default rather than to the error log.</li>
+<li>mysqld_safe is a shell script that invokes mysqld. The script sets up the error log, and then launches mysqld and monitors it. If mysqld terminates abnormally, mysqld_safe restarts it.</li>
+<li>mysql.server is a shell script that invokes mysqld_safe. It’s used as a wrapper around mysqld_safe for systems such as Linux and Solaris that use System V run-level directories. Typically, this script is renamed to mysql when it is installed in a run-level directory.</li>
+<li>mysqld_multi is a Perl script intended to make it easier to manage multiple servers on a single host. It can start or stop servers, or report on whether servers are running.</li>
+<li>The mysqladmin program has a shutdown command. It connects to the server as a client and can shut down local or remote servers.</li>
+<li>The mysql.server script can shut down the local server when invoked with an argument of stop</li>
+<li>The mysqld_multi script has a stop command and can shut down any of the servers that it manages. It does so by invoking mysqladmin</li>
+</ul>
+<p><strong>note:</strong> mysqld_safe has no server shutdown capability. You can use mysqladmin shutdown instead. Note that if you forcibly terminate mysqld by using the kill -9 command to send it a signal, mysqld_safe will detect that mysqld terminated abnormally and will restart it. You can work around this by killing mysqld_safe first and then mysqld, but it’s better to use mysqladmin shutdown, which initiates a normal (clean) server shutdown.</p>
+<h2 id="Log-and-status-Files"><a href="#Log-and-status-Files" class="headerlink" title="Log and status Files"></a>Log and status Files</h2><ul>
+<li>The general query log records all statements that the server receives from clients. use –log or –log=file_name</li>
+<li>The binary log records statements that modify data. use –log-bin or –log-bin=file_name . wen can use mysqlbinlog utility dump bin log context.</li>
+<li>The slow query log contains a record of queries that take a long time to execute. use –log-slow-queries or –log-slow-queries=file_name.we can use mysqldumpslow utility analysis slow query.</li>
+<li>The Error Log. Alert log file</li>
+<li>Status Files. PID file</li>
+</ul>
+<h2 id="Client-Programs-for-DBA-Work"><a href="#Client-Programs-for-DBA-Work" class="headerlink" title="Client Programs for DBA Work"></a>Client Programs for DBA Work</h2><ul>
+<li>mysql is a general-purpose command-line client for sending SQL statements to the server, including those of an administrative nature.</li>
+<li>mysqladmin is an administrative command-line client that helps you manage the server.</li>
+<li>mysqlimport provides a command-line interface to the LOAD DATA INFILE statement. It is used to load data files into tables without having to issue LOAD DATA INFILE statements yourself. mysqlimport can load files located on the client host or on the server host. It can load tables managed by local or remote servers.</li>
+<li>mysqldump is a command-line client for dumping the contents of databases and tables. It’s useful for making backups or for copying databases to other machines.</li>
+</ul>
+<h3 id="mysqladmin"><a href="#mysqladmin" class="headerlink" title="mysqladmin"></a>mysqladmin</h3><p>The mysqladmin command-line client is designed specifically for administrative operations. Its capabilities include those in the following list:</p>
+<ul>
+<li>“Ping” the server to see whether it’s running and accepting client connections</li>
+<li>Shut down the server</li>
+<li>Create and drop databases</li>
+<li>Display server configuration and version information</li>
+<li>Display or reset server status variables</li>
+<li>Set passwords</li>
+<li>Reload the grant tables</li>
+<li>Flush the log files or various server caches</li>
+<li>Start or stop replication slave servers</li>
+<li>Display information about client connections or kill connections</li>
+</ul>
+<h3 id="mysqldump"><a href="#mysqldump" class="headerlink" title="mysqldump"></a>mysqldump</h3><ul>
+<li>Table contents dumped to data files can be dumped only on the server host, so when using mysqldump this way, it’s best to invoke it on the server host.</li>
+<li>When using mysqldump to produce SQL-format dump files, the server transfers table contents to mysqldump, which writes the dump file locally on the client host. SQL-format dumps can be generated for tables managed by local or remote servers.</li>
+</ul>
+<h2 id="Client-Program-Limitations"><a href="#Client-Program-Limitations" class="headerlink" title="Client Program Limitations"></a>Client Program Limitations</h2><ul>
+<li>mysqladmin can create or drop databases, but it has no capabilities for creating or dropping individual tables or indexes. It can change passwords, but cannot create or delete user accounts. The mysql and MySQL Administrator programs can perform all of these operations</li>
+<li>mysqlimport loads data files, so it can load data files produced by mysqldump. However, mysqldump also can produce SQL-format dump files containing INSERT statements, and mysqlimport cannot load those files. Thus, mysqlimport is only a partial complement to mysqldump. To process dump files containing SQL statements, use mysql instead.</li>
+<li>With one exception, none of the client programs can start the server. Normally, you invoke the server directly or by using a startup script, or you can arrange to have the operating system invoke the server as part of its system startup procedure</li>
+<li>None of the clients discussed in this chapter can shut down the server except mysqladmin and MySQL Administrator. mysqladmin shuts down the server by using a special non-SQL capability of the client/server protocol. If you use an account that has the SHUTDOWN privilege, it can shut down local or remote servers. MySQL Administrator can shut down a local MySQL server on Windows if the server is configured to run as a Windows service</li>
+</ul>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="http://BowenZhuangOutlook.github.io/2018/08/01/MySQL学习记录/" data-id="cjkcbsuz3000g2o7aij5iw6e3" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACtElEQVR42u3awU7DMBAE0P7/T8MVhNLMrO2oSC8nBGmcZyTbnd3XK76+flx/f3P1178/X302Gff9nUsXHh4e3sKrJ697BWh57ejtp/Dw8PBO865W1HahT7aNfKxk+m4seHh4eB/Am71Ezlt5Gh4eHt6n8d7feXVP8qn1YzoeHh7e87w2DkhihXya2kDkSNaCh4eHF/PyKtLn/HykvoeHh4e3XFVPNol8sZ6Fxe3zf30KDw8P7wBvV+vAiWaptiR2+W54eHh4W3ltK9XsHNsGwXmR7Gbq8fDw8A7w1pfmNsxtw4V23M07Dx4eHt7F01ZKX20zVhtzbIg88PDw8Lby8kPqSpNWcoyetQXg4eHhPc9biRWSQGEGaydx+O0BDw8Pb8SbBaCzqLdtRGhHjPY9PDw8vGXeLHhty1oJeG8mfdMZgYeHh7fAm4UOu8LZ9oDebhJ4eHh4J3j549qJyF8ub1PIj+N4eHh453hJealFtlvCbAuJ/m94eHh4h3l5sNs2BMzas9ZbuPDw8PBO8/Lh882jDRrWp/jX7/Hw8PAO8PJb87h2VzNWEkZER388PDy8Y7y8AJYclxNYEjS0rWCX+TQeHh7eVl6LbF8xWdbziUimGw8PD+8ZXv6g9s7kOUlxK7n/ZnQ8PDy8Tbx2UZ61QM0ijJXyGB4eHt4zvLw0lTdF5S+90qYQpRR4eHh4j/DaQKGNcWeltQiGh4eH9wjvFVztkbqNgGfXTX0PDw8PbxPvq7zaeDdZ3GcH6OjJeHh4eAd4s2V3JcBtR8zLb0tbCx4eHl7Jy+OAlZA3n4jNR3k8PDy8Y7xdrVHrYe7KPoaHh4f3f3mzotdKye3RjQEPDw9v0xG5jWuTItas1QAPDw/vGd56GJEEB7NxZ1ODh4eHd47XfsnPX2jXQp8fu/Hw8PAO874BIUXVYlEzemEAAAAASUVORK5CYII=">分享</a><div class="tags"></div><div class="post-nav"><a class="next" href="/2018/07/25/资源分享页面/">资源分享</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"/><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/博客/">博客</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/技术/">技术</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/资源/">资源</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/DB/" style="font-size: 15px;">DB</a> <a href="/tags/思维导图/" style="font-size: 15px;">思维导图</a> <a href="/tags/Hexo/" style="font-size: 15px;">Hexo</a> <a href="/tags/博客/" style="font-size: 15px;">博客</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/OGG/" style="font-size: 15px;">OGG</a> <a href="/tags/GoldenGate/" style="font-size: 15px;">GoldenGate</a> <a href="/tags/MongoDB/" style="font-size: 15px;">MongoDB</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/08/01/MySQL学习记录/">MySQL学习记录</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/25/资源分享页面/">资源分享</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/22/Linux基础知识/">Linux基础知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/22/MongoDB基础操作/">MongoDB基础操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/21/DB思维导图/">DB思维导图</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/19/OGGBG/">GoldenGate Big Data 实验</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/18/Hexo博客搭建/">Hexo博客搭建</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://www.haomwei.com/" title="屠夫" target="_blank">屠夫</a><ul></ul><a href="http://www.timedifferent.com/" title="时光疯子" target="_blank">时光疯子</a><ul></ul><a href="https://blog.phpgao.com/" title="老高的技术博客" target="_blank">老高的技术博客</a><ul></ul><a href="https://blog.xizhibei.me/" title="须臾之学" target="_blank">须臾之学</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">尚武.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
