@@ -3,6 +3,29 @@
   
     
     <entry>
+      <title>MySQLMemory</title>
+      <link href="/2018/08/15/MySQLMemory/"/>
+      <url>/2018/08/15/MySQLMemory/</url>
+      <content type="html"><![CDATA[<h1 id="MySQL-Global-And-Thread-Memory"><a href="#MySQL-Global-And-Thread-Memory" class="headerlink" title="MySQL Global And Thread Memory"></a>MySQL Global And Thread Memory</h1><p><img src="/2018/08/15/MySQLMemory/MySQLMemory.png" alt=""></p>]]></content>
+      
+      <categories>
+          
+          <category> 技术 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> MySQL </tag>
+            
+            <tag> Memory </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>SQL优化思想</title>
       <link href="/2018/08/08/SQL%E4%BC%98%E5%8C%96%E6%80%9D%E6%83%B3/"/>
       <url>/2018/08/08/SQL%E4%BC%98%E5%8C%96%E6%80%9D%E6%83%B3/</url>
